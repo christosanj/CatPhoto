@@ -5,12 +5,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.mexiti.catphotoapp.model.CatPhoto
 import com.mexiti.catphotoapp.network.CatApi
 import kotlinx.coroutines.launch
 import java.io.IOException
 
 sealed interface CatUiState{
-    data class Success(val photos:String) : CatUiState
+    data class Success(val photos: List<CatPhoto>) : CatUiState
     object Error: CatUiState
     object Loading: CatUiState
 }
@@ -22,14 +23,15 @@ class CatViewModel:ViewModel(){
         getCatPhotos()
     }
 
-   private  fun getCatPhotos(){
+    fun getCatPhotos(){
          viewModelScope.launch {
             catUiState = try {
                  val listResult = CatApi.retrofitService.getPhotos()
-                CatUiState.Success("Number of photos is ${listResult.size}")
-             } catch (e: IOException){
+                 CatUiState.Success(listResult)
+            }
+            catch (e: IOException){
                  CatUiState.Error
-             }
+            }
 
          }
     }
